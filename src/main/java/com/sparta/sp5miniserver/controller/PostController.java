@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RequiredArgsConstructor // 생성자 주입
 @RestController
@@ -18,8 +19,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post")  // <form> 요소가 파일이나 이미지를 서버로 전송할 때 주로 사용!!  HttpServletRequest request 추가해줘야함.
-    public ResponseDto<?> createPost(@RequestPart(value ="post")PostRequestDto postRequestDto,
-                                     @RequestPart(value = "image")MultipartFile multipartFile) {
+    public ResponseDto<?> createPost(@RequestPart(value ="post") PostRequestDto postRequestDto,
+                                     @RequestPart(value = "image") MultipartFile multipartFile) throws IOException {
         return postService.createPost(postRequestDto,multipartFile);}
 
 //    @GetMapping("/posts") // 게시판 전체 조회
