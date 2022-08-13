@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -46,7 +48,7 @@ public class PostService {
         imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
         }
 
-        System.out.println(imageUrl);
+
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
                 .content(postRequestDto.getContent())
@@ -60,10 +62,32 @@ public class PostService {
                         .title(post.getTitle())
                         .content(post.getContent())
                         .imageUrl(post.getImageUrl())
+                        .createAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
                         .build()
         );
 
 
+
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<?> getAllPost() {
+        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
+        List<PostResponseDto> dtoList = new ArrayList<>();
+
+        for(Post post : postList){
+            dtoList.add( PostResponseDto.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .imageUrl(post.getImageUrl())
+                    .createAt(post.getCreatedAt())
+                    .modifiedAt(post.getModifiedAt())
+                    .build());
+        }
+
+        return ResponseDto.success(dtoList);
 
     }
 }
