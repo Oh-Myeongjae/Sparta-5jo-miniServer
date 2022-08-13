@@ -17,7 +17,9 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
+### IntelliJ IDEA ### 이곳에 추가!
+application-aws.properties
+
 .idea
 *.iws
 *.iml
