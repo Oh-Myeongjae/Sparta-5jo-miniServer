@@ -1,7 +1,7 @@
-package com.sparta.sp5miniserver.Controller;
+package com.sparta.sp5miniserver.controller;
 
-import com.sparta.sp5miniserver.Dto.SignUpRequest;
-import com.sparta.sp5miniserver.Service.MemberService;
+import com.sparta.sp5miniserver.dto.SignUpRequest;
+import com.sparta.sp5miniserver.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

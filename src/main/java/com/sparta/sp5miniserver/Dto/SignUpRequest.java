@@ -1,8 +1,7 @@
-package com.sparta.sp5miniserver.Dto;
+package com.sparta.sp5miniserver.dto;
 
 import lombok.Getter;
 
-import javax.validation.constraints.Size;
 import java.util.regex.Pattern;
 
 @Getter
