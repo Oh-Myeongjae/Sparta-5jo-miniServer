@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    List<Post> findAll();
-    List<Post> findAllByOrderByModifiedAtDesc(); // 이걸 쓰면 왜
+    List<Post> findAllByOrderByModifiedAtDesc(); // 이걸 쓰면 왜   Error creating bean with name 'XXX' 발생했을까??
 }

@@ -34,8 +34,8 @@ public class Post extends Timestamped {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Member member;
 
-//    @OneToMany( mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Comment> commentList;
+    @OneToMany( mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList;
 
 //    @OneToMany( mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<HeartPost> heartPostList;
