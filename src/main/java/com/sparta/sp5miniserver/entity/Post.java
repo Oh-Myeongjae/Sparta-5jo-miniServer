@@ -1,6 +1,8 @@
 package com.sparta.sp5miniserver.entity;
 
 
+import com.sparta.sp5miniserver.dto.request.PostRequestDto;
+import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +31,10 @@ public class Post extends Timestamped {
     @Column
     private String imageUrl;
 
+    @Transient    // 만들어보자!!
+    private Long heartCount;
+
+
     // 임시로 멤버 연관관계 삭제
 //    @JoinColumn(name = "member_id", nullable = false)
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -39,5 +45,15 @@ public class Post extends Timestamped {
 
 //    @OneToMany( mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<HeartPost> heartPostList;
+
+
+
+
+
+    public void update(PostRequestDto postRequestDto, String imageUrl){
+        this.title = postRequestDto.getTitle();
+        this.content = postRequestDto.getContent();
+        this.imageUrl = imageUrl;
+    }
 
 }
