@@ -1,5 +1,6 @@
 package com.sparta.sp5miniserver.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ public class PostService {
     public ResponseDto<?> createPost(PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
 
         String imageUrl = null;  // 입력 이미지가 없다면!!
+
         // 참고 사이트 : https://www.sunny-son.space/spring/Springboot%EB%A1%9C%20S3%20%ED%8C%8C%EC%9D%BC%20%EC%97%85%EB%A1%9C%EB%93%9C/
         if (!multipartFile.isEmpty()) { // 이미지가 있다면!!
         String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename()); // 파일이름
@@ -48,7 +51,12 @@ public class PostService {
                 .withCannedAcl(CannedAccessControlList.PublicRead));  // S3 저장 및 권한설정
 
         imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
+
         }
+
+
+
+
 
 
         Post post = Post.builder()
@@ -125,7 +133,7 @@ public class PostService {
 
     @Transactional
     public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
-        String imageUrl = null;  // 초기값
+        String imageUrl = null;  // 이미지 없을시..
 
         Optional<Post> optionalPost =  postRepository.findById(postId);
 
@@ -133,6 +141,8 @@ public class PostService {
             return ResponseDto.fail("에러코드~~","존재하지 않는 게시글");
         }
         Post post = optionalPost.get();
+        String urlFileName = post.getImageUrl().substring(56);
+        fileDelete(urlFileName); // S3에 업로드된 이미지 삭제!
 
 
         if (!multipartFile.isEmpty()) {
@@ -142,6 +152,7 @@ public class PostService {
             objectMetadata.setContentType(multipartFile.getContentType());
 
             InputStream inputStream = multipartFile.getInputStream();
+
             amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
 
@@ -166,18 +177,45 @@ public class PostService {
         );
     }
 
+    @Transactional
+    public ResponseDto<?> deletePost(Long postId) {
+        Optional<Post> optionalPost =  postRepository.findById(postId);
+
+        if(optionalPost.isEmpty()){
+            return ResponseDto.fail("에러코드~~","존재하지 않는 게시글");
+        }
+        Post post = optionalPost.get();
+
+
+        // aws 연동된 이미지도 삭제!
+
+        String urlFileName = post.getImageUrl().substring(56);
+        fileDelete(urlFileName);
+
+        // 포스트 삭제
+        postRepository.delete(post);
+
+        return ResponseDto.success("게시글 삭제 성공!");
+    }
 
 
 
 
-    @Transactional(readOnly = true) //참조용
+    @Transactional(readOnly = true) //참조용!!
     public Post isPresentPost(Long id) {
         Optional<Post> optionalPost = postRepository.findById(id);
         return optionalPost.orElse(null);
     }
 
+    @Transactional // S3 이미지 삭제
+    public void fileDelete(String fileName) {
 
-
+        try {
+            amazonS3Client.deleteObject(this.bucketName, (fileName).replace(File.separatorChar, '/'));
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+        }
+    }
 
 
 

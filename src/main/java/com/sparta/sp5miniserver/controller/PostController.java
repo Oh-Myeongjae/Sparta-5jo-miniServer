@@ -39,11 +39,11 @@ public class PostController {
                                      @RequestPart(value = "image") MultipartFile multipartFile) throws IOException {
         return postService.updatePost(postId,postRequestDto,multipartFile);
     }
-//
-//    @DeleteMapping("/post/{postId}")
-//    public ResponseDto<?> deletePost(@PathVariable Long postId,){
-//        return postService.deletePost();
-//    }
+
+    @DeleteMapping("/post/{postId}")
+    public ResponseDto<?> deletePost(@PathVariable Long postId){
+        return postService.deletePost(postId);
+    }
 
 
 }
