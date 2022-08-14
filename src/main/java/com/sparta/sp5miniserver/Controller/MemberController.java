@@ -16,8 +16,6 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/member/signup")
-    public void signUp(@RequestBody SignUpRequest request) {
-        memberService.signUp(request);
-    }
+    @PostMapping("/api/signup")
+    public void signUp(@RequestBody SignUpRequest request) {memberService.signUp(request);}
 }

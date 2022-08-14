@@ -2,25 +2,28 @@ package com.sparta.sp5miniserver.service;
 
 import com.sparta.sp5miniserver.dto.SignUpRequest;
 import com.sparta.sp5miniserver.dto.request.LoginRequestDto;
+import com.sparta.sp5miniserver.dto.request.TokenDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
 import com.sparta.sp5miniserver.entity.Member;
 import com.sparta.sp5miniserver.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sparta.sp5miniserver.utils.jwt.TokenProvider;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 
+@RequiredArgsConstructor
 @Service
 public class MemberService {
-
     private final MemberRepository memberRepository;
 
-    //DI
-    @Autowired
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    private final TokenProvider tokenProvider;
 
     @Transactional
     public Member signUp(SignUpRequest request) {
@@ -49,14 +52,26 @@ public class MemberService {
             return ResponseDto.fail("MEMBER_NOT_FOUND",
                     "member not found");
         }
+        System.out.println("========================================1");
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(requestDto.getId(), requestDto.getPassword());
+        System.out.println("========================================2");
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        System.out.println("========================================3");
+        TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
+        System.out.println("========================================4");
+        tokenToHeaders(tokenDto, response);
+        System.out.println("========================================5");
+//
+        ResponseDto responseDto = ResponseDto.success("sucess");
+        System.out.println("responseDto = " + responseDto);
+        return responseDto;
+    }
 
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//                new UsernamePasswordAuthenticationToken(requestDto.getNickname(), requestDto.getPassword());
-//        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-//
-//        TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
-//        tokenToHeaders(tokenDto, response);
-//
-        return ResponseDto.success("sucess");
+    public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
+        response.addHeader("Access-Token", "Bearer " + tokenDto.getAccessToken());
+//        response.addHeader("Refresh-Token", "Bearer " + tokenDto.getRefreshToken());
+        response.addHeader("Access-Token-Expire-Time", tokenDto.getAccessTokenExpiresIn().toString());
     }
 }
+
