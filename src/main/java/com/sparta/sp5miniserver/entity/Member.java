@@ -1,9 +1,16 @@
 package com.sparta.sp5miniserver.entity;
 
+import lombok.*;
+import org.springframework.stereotype.Service;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Member {
 
     @Id
@@ -11,7 +18,7 @@ public class Member {
     private Long id;
 
     @Column(nullable = false)
-    private String userId;
+    private String memberId;
 
     @Column(nullable = false)
     private String nickname;

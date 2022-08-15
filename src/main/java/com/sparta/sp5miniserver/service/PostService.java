@@ -83,6 +83,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public ResponseDto<?> getAllPost() {
+
         List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostResponseDto> dtoList = new ArrayList<>();
 
