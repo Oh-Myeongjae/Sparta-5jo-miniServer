@@ -32,11 +32,13 @@ public class PostController {
     public ResponseDto<?> getOnePost(@PathVariable Long postId){
         return postService.getOnePost(postId);
     }
-//
-//    @PutMapping("/post/{postId}")
-//    public ResponseDto<?> updatePost(@PathVariable Long postId,){
-//        return postService.updatePost();
-//    }
+
+    @PutMapping("/post/{postId}") // 게시글 수정 (추후에 시간이 된다면 패치로 수정해보는 것도 나쁘진 않을듯!!)
+    public ResponseDto<?> updatePost(@PathVariable Long postId,
+                                     @RequestPart(value ="post") PostRequestDto postRequestDto,
+                                     @RequestPart(value = "image") MultipartFile multipartFile) throws IOException {
+        return postService.updatePost(postId,postRequestDto,multipartFile);
+    }
 //
 //    @DeleteMapping("/post/{postId}")
 //    public ResponseDto<?> deletePost(@PathVariable Long postId,){

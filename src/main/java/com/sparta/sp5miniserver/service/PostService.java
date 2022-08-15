@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -94,9 +95,16 @@ public class PostService {
 
     @Transactional(readOnly = true)  // 메소드 인수에 HttpServletRequest request 추가해줘야함. 이 명령은 게시물 입장할때 나오면 될듯?
     public ResponseDto<?> getOnePost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NullPointerException("해당 게시글이 존재하지 않습니다."));
+//        Post post = postRepository.findById(postId).orElseThrow(()
+//                -> new NullPointerException("해당 게시글이 존재하지 않습니다.")); ///
+//           매니저님 조언 :  null체크를 하는 방식보다는 post orElseThrow를 발생시켜서 RestControllerAdvice으로 받는게 더 좋아 보입니다.
+        Optional<Post> OptionalPost= postRepository.findById(postId);
 
+        if(OptionalPost.isEmpty()){
+            return ResponseDto.fail("에러코드~~","존재하지 않는 게시글");
+        }
+
+        Post post = OptionalPost.get();
 //        List<Comment> commentList = commentRepository.findAllByPost(post);  // 댓글은 아직 기능 구현 안햇음!
 //        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
@@ -114,4 +122,63 @@ public class PostService {
         );
 
     }
+
+    @Transactional
+    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
+        String imageUrl = null;  // 초기값
+
+        Optional<Post> optionalPost =  postRepository.findById(postId);
+
+        if(optionalPost.isEmpty()){
+            return ResponseDto.fail("에러코드~~","존재하지 않는 게시글");
+        }
+        Post post = optionalPost.get();
+
+
+        if (!multipartFile.isEmpty()) {
+            String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
+
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(multipartFile.getContentType());
+
+            InputStream inputStream = multipartFile.getInputStream();
+            amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+
+            imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString();
+        }
+
+
+        post.update(postRequestDto,imageUrl); // 업데이트!
+
+
+
+        return ResponseDto.success(
+                PostResponseDto.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .imageUrl(post.getImageUrl())
+                        .createAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
+                        .commentList(post.getCommentList())
+                        .build()
+        );
+    }
+
+
+
+
+
+    @Transactional(readOnly = true) //참조용
+    public Post isPresentPost(Long id) {
+        Optional<Post> optionalPost = postRepository.findById(id);
+        return optionalPost.orElse(null);
+    }
+
+
+
+
+
+
 }
