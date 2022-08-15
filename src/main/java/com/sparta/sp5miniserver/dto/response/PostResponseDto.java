@@ -1,9 +1,13 @@
 package com.sparta.sp5miniserver.dto.response;
 
+import com.sparta.sp5miniserver.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -14,4 +18,7 @@ public class PostResponseDto {
     private String title;
     private String content;
     private String imageUrl;
+    private LocalDateTime createAt;
+    private LocalDateTime modifiedAt;
+    private List<Comment> commentList;
 }

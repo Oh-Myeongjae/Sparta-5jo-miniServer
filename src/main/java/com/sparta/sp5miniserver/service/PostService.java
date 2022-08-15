@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
+import com.sparta.sp5miniserver.dto.response.CommentResponseDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
 import com.sparta.sp5miniserver.entity.Post;
@@ -18,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -46,7 +49,7 @@ public class PostService {
         imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
         }
 
-        System.out.println(imageUrl);
+
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
                 .content(postRequestDto.getContent())
@@ -60,10 +63,55 @@ public class PostService {
                         .title(post.getTitle())
                         .content(post.getContent())
                         .imageUrl(post.getImageUrl())
+                        .createAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
                         .build()
         );
 
 
+
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<?> getAllPost() {
+        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
+        List<PostResponseDto> dtoList = new ArrayList<>();
+
+        for(Post post : postList){
+            dtoList.add( PostResponseDto.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .imageUrl(post.getImageUrl())
+                    .createAt(post.getCreatedAt())
+                    .modifiedAt(post.getModifiedAt())
+                    .build());
+        }
+
+        return ResponseDto.success(dtoList);
+
+    }
+
+    @Transactional(readOnly = true)  // 메소드 인수에 HttpServletRequest request 추가해줘야함. 이 명령은 게시물 입장할때 나오면 될듯?
+    public ResponseDto<?> getOnePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NullPointerException("해당 게시글이 존재하지 않습니다."));
+
+//        List<Comment> commentList = commentRepository.findAllByPost(post);  // 댓글은 아직 기능 구현 안햇음!
+//        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+
+
+        return ResponseDto.success(
+          PostResponseDto.builder()
+                  .id(post.getId())
+                  .title(post.getTitle())
+                  .content(post.getContent())
+                  .imageUrl(post.getImageUrl())
+                  .createAt(post.getCreatedAt())
+                  .modifiedAt(post.getModifiedAt())
+                  .commentList(post.getCommentList())
+                  .build()
+        );
 
     }
 }

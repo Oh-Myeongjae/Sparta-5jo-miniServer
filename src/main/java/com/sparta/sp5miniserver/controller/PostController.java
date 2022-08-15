@@ -23,15 +23,15 @@ public class PostController {
                                      @RequestPart(value = "image") MultipartFile multipartFile) throws IOException {
         return postService.createPost(postRequestDto,multipartFile);}
 
-//    @GetMapping("/posts") // 게시판 전체 조회
-//    public ResponseDto<?> getAllPosts(){
-//        return postService.getAllpost();
-//    }
-//
-//    @GetMapping("/post/{postId}") // 게시글 한개 조회
-//    public ResponseDto<?> getOnePost(@PathVariable Long postId,){
-//        return postService.getOnePost();
-//    }
+    @GetMapping("/posts") // 게시판 전체 조회
+    public ResponseDto<?> getAllPosts(){
+        return postService.getAllPost();
+    }
+
+    @GetMapping("/post/{postId}") // 게시글 한개 조회
+    public ResponseDto<?> getOnePost(@PathVariable Long postId){
+        return postService.getOnePost(postId);
+    }
 //
 //    @PutMapping("/post/{postId}")
 //    public ResponseDto<?> updatePost(@PathVariable Long postId,){
