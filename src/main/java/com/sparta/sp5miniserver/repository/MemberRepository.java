@@ -1,11 +1,9 @@
 package com.sparta.sp5miniserver.repository;
 
-import com.sparta.sp5miniserver.entity.Member;
+import java.util.Optional;
+import com.sparta.sp5miniserver.Entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
-public interface MemberRepository extends JpaRepository<Member, Long> {
-
-//    Optional<Member> findById(Long id);
+public interface MemberRepository extends JpaRepository<Member, Integer> {
+    Optional<Member> findByMemberId(String memberId);
 }
