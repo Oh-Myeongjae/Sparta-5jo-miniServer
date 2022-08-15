@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableJpaAuditing
 @SpringBootApplication
+@EnableJpaAuditing
 public class Sp5miniServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(Sp5miniServerApplication.class, args);

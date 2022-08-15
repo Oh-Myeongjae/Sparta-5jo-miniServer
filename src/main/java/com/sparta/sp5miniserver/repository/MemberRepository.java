@@ -1,5 +1,4 @@
-package com.sparta.sp5miniserver.Repository;
-
+package com.sparta.sp5miniserver.repository;
 
 import java.util.Optional;
 import com.sparta.sp5miniserver.Entity.Member;

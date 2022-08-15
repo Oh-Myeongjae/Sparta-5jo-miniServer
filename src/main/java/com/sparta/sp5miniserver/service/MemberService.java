@@ -1,4 +1,4 @@
-package com.sparta.sp5miniserver.Service;
+package com.sparta.sp5miniserver.service;
 
 import com.sparta.sp5miniserver.Dto.SignUpRequest;
 import com.sparta.sp5miniserver.Entity.Member;

@@ -1,4 +1,4 @@
-package com.sparta.sp5miniserver.Controller;
+package com.sparta.sp5miniserver.controller;
 
 import com.sparta.sp5miniserver.Dto.SignUpRequest;
 import com.sparta.sp5miniserver.Service.MemberService;
