@@ -1,4 +1,4 @@
-package com.sparta.sp5miniserver.Dto;
+package com.sparta.sp5miniserver.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

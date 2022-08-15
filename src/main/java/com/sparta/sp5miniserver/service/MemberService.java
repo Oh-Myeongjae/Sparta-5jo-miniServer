@@ -1,8 +1,10 @@
-package com.sparta.sp5miniserver.Service;
+package com.sparta.sp5miniserver.service;
 
-import com.sparta.sp5miniserver.Dto.SignUpRequest;
-import com.sparta.sp5miniserver.Entity.Member;
-import com.sparta.sp5miniserver.Repository.MemberRepository;
+
+import com.sparta.sp5miniserver.dto.SignUpRequest;
+import com.sparta.sp5miniserver.entity.Member;
+import com.sparta.sp5miniserver.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,14 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.constraints.Null;
 
 @Service
+@RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
     //DI
-    @Autowired
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
 
     @Transactional
     public Member signUp(SignUpRequest request){
@@ -36,6 +35,6 @@ public class MemberService {
         member.setPassword(request.getPassword());
 
         //db에 저장하고 반환
-        return memberRepository.save(member);
+        return memberRepository.save(member);  // response 수정해야됨...
     }
 }
