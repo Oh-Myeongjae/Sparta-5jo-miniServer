@@ -1,18 +1,26 @@
 package com.sparta.sp5miniserver.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.regex.Pattern;
 
 @Getter
+@NoArgsConstructor
 public class SignUpRequest {
-    //validate 함수를 만든다
+
+    @NotBlank
     private String memberId;
 
+    @NotBlank
     private String nickname;
 
+    @NotBlank
     private String password;
 
+    //validate 함수를 만든다
     public void validate() {
 
         String pattern = "^[가-힣\\da-zA-Z]*${2,10}";

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,24 +34,31 @@ public class SecurityConfiguration {
     return new BCryptPasswordEncoder();
   }
 
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    // h2-console 사용에 대한 허용 (CSRF, FrameOptions 무시)
+    return (web) -> web.ignoring()
+            .antMatchers("/h2-console/**");
+  }
+
   @Bean
   @Order(SecurityProperties.BASIC_AUTH_ORDER)
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors();
-
+    http.headers().frameOptions().disable();
     http.csrf().disable()
 
 //        .exceptionHandling()  //---->예외처리 기능이 작동
 //        .authenticationEntryPoint(authenticationEntryPointException)//->인증실패시 처리
 //        .accessDeniedHandler(accessDeniedHandlerException) //->인가실패시 처리
 
-
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
         .and()
         .authorizeRequests()
-        .antMatchers("/api/*").permitAll()
+        .antMatchers("/api/signup").permitAll()
+        .antMatchers("/api/login").permitAll()
+            .antMatchers("/h2-console/**").permitAll()
 //        .antMatchers("/api/post").permitAll()
 //        .antMatchers("/api/post/*").permitAll()
 //        .antMatchers("/api/comment/*").permitAll()
