@@ -17,7 +17,7 @@ public class Member {
     private String nickname;
 
     @Column(nullable = false)
-    private Long password;
+    private String password;
 
     // 임시로 POST 연관관계 삭제
 //    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
