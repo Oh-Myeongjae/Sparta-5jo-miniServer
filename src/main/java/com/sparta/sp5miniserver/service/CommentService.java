@@ -11,6 +11,9 @@ import com.sparta.sp5miniserver.repository.MemberRepository;
 import com.sparta.sp5miniserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +67,12 @@ public class CommentService {
         if(commentRepository.findById(commentId).isEmpty()){return ResponseDto.fail("BAD_REQUEST","잘못된 요청입니다.");}
         commentRepository.deleteById(commentId);
         return ResponseDto.success("성공");
+    }
 
+    //LikeService 의 likeComment 에서 사용. DB 에서 코멘트 검색해 리턴
+    @Transactional(readOnly = true)
+    public Comment isPresentComment(Long id) {
+        Optional<Comment> optionalComment = commentRepository.findById(id);
+        return optionalComment.orElse(null);
     }
 }
