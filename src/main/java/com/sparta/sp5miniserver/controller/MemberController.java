@@ -17,7 +17,7 @@ public class MemberController {
     }
 
     @PostMapping("/api/signup")
-    public void signUp(@RequestBody SignUpRequest request){
-        memberService.signUp(request);
+    public String signUp(@RequestBody SignUpRequest request){
+        return memberService.signUp(request);
     }
 }
