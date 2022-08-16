@@ -9,6 +9,8 @@ import com.sparta.sp5miniserver.dto.request.PostRequestDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
 import com.sparta.sp5miniserver.entity.Post;
+import com.sparta.sp5miniserver.entity.PostLike;
+import com.sparta.sp5miniserver.repository.PostLikeRepository;
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class PostService {
 
     private final AmazonS3Client amazonS3Client;
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Value("${cloud.aws.s3.bucket}")  // 내 S3 버켓 이름!!
     private String bucketName;
@@ -120,6 +123,7 @@ public class PostService {
                   .createAt(post.getCreatedAt())
                   .modifiedAt(post.getModifiedAt())
                   .commentList(post.getCommentList())
+                  .likesCount(countLikesPost(post))//좋아요 개수
                   .build()
         );
 
@@ -211,6 +215,10 @@ public class PostService {
         }
     }
 
-
-
+    //게시글의 좋아요 개수를 반환
+    @Transactional(readOnly = true)
+    public int countLikesPost(Post post) {
+        List<PostLike> postLikeList = postLikeRepository.findAllByPost(post);
+        return postLikeList.size();
+    }
 }
