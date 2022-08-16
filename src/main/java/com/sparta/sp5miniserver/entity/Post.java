@@ -43,8 +43,9 @@ public class Post extends Timestamped {
 //    @OneToMany( mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<HeartPost> heartPostList;
 
-
-
+    //좋아요
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<PostLike> postLikeList;
 
     
     public void update(PostRequestDto postRequestDto, String imageUrl){
