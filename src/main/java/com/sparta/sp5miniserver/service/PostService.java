@@ -36,7 +36,8 @@ public class PostService {
     private String bucketName;
 
     @Transactional   // 메소드 인수에 HttpServletRequest request 추가해줘야함.
-    public ResponseDto<?> createPost(PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
+    public ResponseDto<?> createPost(PostRequestDto postRequestDto) throws IOException {
+        MultipartFile multipartFile = postRequestDto.getImage();
 
         String imageUrl = null;  // 입력 이미지가 없다면!!
         // 참고 사이트 : https://www.sunny-son.space/spring/Springboot%EB%A1%9C%20S3%20%ED%8C%8C%EC%9D%BC%20%EC%97%85%EB%A1%9C%EB%93%9C/
@@ -126,8 +127,9 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
+    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto) throws IOException {
         String imageUrl = null;  // 이미지 없을시..
+        MultipartFile multipartFile = postRequestDto.getImage();
 
         Optional<Post> optionalPost =  postRepository.findById(postId);
 
