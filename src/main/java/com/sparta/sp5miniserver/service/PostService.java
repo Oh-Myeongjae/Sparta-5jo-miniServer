@@ -6,7 +6,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
-import com.sparta.sp5miniserver.dto.response.CommentResponseDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
 import com.sparta.sp5miniserver.entity.Post;
@@ -40,7 +39,6 @@ public class PostService {
     public ResponseDto<?> createPost(PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
 
         String imageUrl = null;  // 입력 이미지가 없다면!!
-
         // 참고 사이트 : https://www.sunny-son.space/spring/Springboot%EB%A1%9C%20S3%20%ED%8C%8C%EC%9D%BC%20%EC%97%85%EB%A1%9C%EB%93%9C/
         if (!multipartFile.isEmpty()) { // 이미지가 있다면!!
         String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename()); // 파일이름
@@ -53,11 +51,6 @@ public class PostService {
         imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
 
         }
-
-
-
-
-
 
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
