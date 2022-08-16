@@ -1,6 +1,5 @@
 package com.sparta.sp5miniserver.controller;
 
-
 import com.sparta.sp5miniserver.dto.SignUpRequest;
 import com.sparta.sp5miniserver.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ public class MemberController {
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
-
 
     @PostMapping("/api/signup")
     public void signUp(@RequestBody SignUpRequest request){
