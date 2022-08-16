@@ -6,6 +6,7 @@ import com.sparta.sp5miniserver.entity.UserDetailsImpl;
 import com.sparta.sp5miniserver.service.PostService;
 import jdk.swing.interop.SwingInterOpUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,10 +20,10 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post")  // <form> 요소가 파일이나 이미지를 서버로 전송할 때 주로 사용!!  HttpServletRequest request 추가해줘야함.
-    public ResponseDto<?> createPost(@ModelAttribute PostRequestDto postRequestDto, UserDetailsImpl userDetails) throws IOException {
+    public ResponseDto<?> createPost(@ModelAttribute PostRequestDto postRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         // ModelAtrribute 사용시 Request에 Setter를 추가해줘야함..
         //  https://minchul-son.tistory.com/546
-        return postService.createPost(postRequestDto);}
+        return postService.createPost(postRequestDto,userDetails);}
 
     @GetMapping("/posts") // 게시판 전체 조회
     public ResponseDto<?> getAllPosts(){
@@ -38,12 +39,12 @@ public class PostController {
     public ResponseDto<?> updatePost(@PathVariable Long postId,
                                      @ModelAttribute PostRequestDto postRequestDto,
                                      UserDetailsImpl userDetails) throws IOException {
-        return postService.updatePost(postId,postRequestDto);
+        return postService.updatePost(postId,postRequestDto,userDetails);
     }
 
     @DeleteMapping("/post/{postId}")
     public ResponseDto<?> deletePost(@PathVariable Long postId, UserDetailsImpl userDetails){
-        return postService.deletePost(postId);
+        return postService.deletePost(postId,userDetails);
     }
 
 

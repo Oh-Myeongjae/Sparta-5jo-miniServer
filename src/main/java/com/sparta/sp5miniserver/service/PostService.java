@@ -8,7 +8,9 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
+import com.sparta.sp5miniserver.entity.Member;
 import com.sparta.sp5miniserver.entity.Post;
+import com.sparta.sp5miniserver.entity.UserDetailsImpl;
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,10 @@ public class PostService {
     @Value("${cloud.aws.s3.bucket}")  // 내 S3 버켓 이름!!
     private String bucketName;
 
-    @Transactional   // 메소드 인수에 HttpServletRequest request 추가해줘야함.
-    public ResponseDto<?> createPost(PostRequestDto postRequestDto) throws IOException {
+    @Transactional
+    public ResponseDto<?> createPost(PostRequestDto postRequestDto, UserDetailsImpl userDetails) throws IOException {
+
+        Member member = userDetails.getMember();
         MultipartFile multipartFile = postRequestDto.getImage();
 
         String imageUrl = null;  // 입력 이미지가 없다면!!
@@ -55,6 +59,7 @@ public class PostService {
 
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
+                .member(member)
                 .content(postRequestDto.getContent())
                 .imageUrl(imageUrl)
                 .build();
@@ -127,7 +132,9 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto) throws IOException {
+    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, UserDetailsImpl userDetails) throws IOException {
+
+        Member member = userDetails.getMember();
         String imageUrl = null;  // 이미지 없을시..
         MultipartFile multipartFile = postRequestDto.getImage();
 
@@ -156,7 +163,7 @@ public class PostService {
         }
 
 
-        post.update(postRequestDto,imageUrl); // 업데이트!
+        post.update(postRequestDto,imageUrl,member); // 업데이트!
 
 
 
@@ -174,7 +181,9 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseDto<?> deletePost(Long postId) {
+    public ResponseDto<?> deletePost(Long postId, UserDetailsImpl userDetails) {
+        Member member = userDetails.getMember();
+
         Optional<Post> optionalPost =  postRepository.findById(postId);
 
         if(optionalPost.isEmpty()){
