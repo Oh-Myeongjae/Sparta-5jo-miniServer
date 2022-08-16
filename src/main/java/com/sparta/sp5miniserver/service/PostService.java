@@ -15,6 +15,10 @@ import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,9 +85,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<?> getAllPost() {
+    public ResponseDto<?> getAllPost(int page, int size, String sortBy) {
 
-        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
+        Sort.Direction direction = Sort.Direction.DESC; // true: 오름차순 (asc) , 내림차순 DESC(최신 것이 위로온다)
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size,sort);
+        Page<Post> postList = postRepository.findAll(pageable);
+
+//        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostResponseDto> dtoList = new ArrayList<>();
 
         for(Post post : postList){
@@ -212,7 +221,7 @@ public class PostService {
         return optionalPost.orElse(null);
     }
 
-    @Transactional // S3 이미지 삭제
+  // S3 이미지 삭제
     public void fileDelete(String fileName) {
 
         try {

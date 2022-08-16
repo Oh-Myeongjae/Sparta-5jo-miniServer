@@ -26,8 +26,16 @@ public class PostController {
         return postService.createPost(postRequestDto,userDetails);}
 
     @GetMapping("/posts") // 게시판 전체 조회
-    public ResponseDto<?> getAllPosts(){
-        return postService.getAllPost();
+    public ResponseDto<?> getAllPosts(
+//            @RequestParam("page") int page,
+//            @RequestParam("size")int size,
+//            @RequestParam("sortBy")String sortBy   //테스트용
+    ){
+        int page = 0;  //첫번째 페이지 클라이언트에서는 1 , 서버 0
+        int size = 12; //  한 페이지 당 12개
+        String sortBy = "createdAt";  // 정렬항목인데 필요없을듯...
+
+        return postService.getAllPost(page,size,sortBy);
     }
 
     @GetMapping("/post/{postId}") // 게시글 한개 조회
@@ -38,12 +46,12 @@ public class PostController {
     @PutMapping("/post/{postId}") // 게시글 수정 (추후에 시간이 된다면 패치로 수정해보는 것도 나쁘진 않을듯!!)
     public ResponseDto<?> updatePost(@PathVariable Long postId,
                                      @ModelAttribute PostRequestDto postRequestDto,
-                                     UserDetailsImpl userDetails) throws IOException {
+                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return postService.updatePost(postId,postRequestDto,userDetails);
     }
 
     @DeleteMapping("/post/{postId}")
-    public ResponseDto<?> deletePost(@PathVariable Long postId, UserDetailsImpl userDetails){
+    public ResponseDto<?> deletePost(@PathVariable Long postId,  @AuthenticationPrincipal UserDetailsImpl userDetails){
         return postService.deletePost(postId,userDetails);
     }
 
