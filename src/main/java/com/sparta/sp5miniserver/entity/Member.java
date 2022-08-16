@@ -1,17 +1,16 @@
 package com.sparta.sp5miniserver.entity;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.persistence.*;
+import lombok.*;
+import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+
 @Entity
 public class Member extends Timestamped {
     @Id
@@ -27,8 +26,19 @@ public class Member extends Timestamped {
     @Column(nullable = false)
     private String password;
 
+
     public boolean validatePassword(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
     }
 
+   // 임시로 POST 연관관계 삭제
+   //    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+   //    private List<Post> postList;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HeartPost> heartPostList;
+    
 }

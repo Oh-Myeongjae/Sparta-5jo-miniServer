@@ -1,5 +1,6 @@
 package com.sparta.sp5miniserver.service;
 
+
 import com.sparta.sp5miniserver.dto.SignUpRequest;
 import com.sparta.sp5miniserver.dto.request.LoginRequestDto;
 import com.sparta.sp5miniserver.dto.request.TokenDto;
@@ -14,19 +15,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import javax.validation.constraints.Null;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
 
     private  final PasswordEncoder passwordEncoder;
+
     @Transactional
     public Member signUp(SignUpRequest request){
         //유효성 검사
@@ -35,7 +37,6 @@ public class MemberService {
         //중복된 id가 있는지 레포지토리를 검사
         //System.out.println("request.getMemberId() ================= "+ request.getMemberId());
         if(memberRepository.findByMemberId(request.getMemberId()).orElse(null)!=null) {
-
             throw new IllegalArgumentException("이미 존재하는 id 입니다");
         }
 

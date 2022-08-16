@@ -1,5 +1,6 @@
 package com.sparta.sp5miniserver.entity;
 
+
 import java.time.LocalDateTime;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;

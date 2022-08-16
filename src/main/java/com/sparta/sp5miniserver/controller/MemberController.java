@@ -20,5 +20,4 @@ public class MemberController {
     public void signUp(@RequestBody SignUpRequest request){
         memberService.signUp(request);
     }
-
 }
