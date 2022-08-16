@@ -2,7 +2,6 @@ package com.sparta.sp5miniserver.entity;
 
 
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
-import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,15 +26,13 @@ public class Post extends Timestamped {
 
     @Column(nullable = false)
     private String content;
-
     @Column
     private String imageUrl;
 
     @Transient    // 만들어보자!!
     private Long heartCount;
 
-
-    // 임시로 멤버 연관관계 삭제
+//    // 임시로 멤버 연관관계 삭제
 //    @JoinColumn(name = "member_id", nullable = false)
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Member member;

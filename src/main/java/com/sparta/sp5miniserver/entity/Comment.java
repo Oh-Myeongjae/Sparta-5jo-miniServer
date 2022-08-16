@@ -1,5 +1,6 @@
 package com.sparta.sp5miniserver.entity;
 
+import com.sparta.sp5miniserver.dto.request.CommentRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +29,10 @@ public class Comment {
     @JoinColumn(name = "post_id",nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
+
+    public void update(CommentRequestDto commentRequestDto){
+        this.content = commentRequestDto.getContent();
+    }
 
 
 }
