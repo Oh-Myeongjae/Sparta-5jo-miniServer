@@ -32,10 +32,9 @@ public class Post extends Timestamped {
     @Transient    // 만들어보자!!
     private Long heartCount;
 
-//    // 임시로 멤버 연관관계 삭제
-//    @JoinColumn(name = "member_id", nullable = false)
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private Member member;
+    @JoinColumn(name = "member_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
 
     @OneToMany( mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList;
@@ -48,10 +47,11 @@ public class Post extends Timestamped {
     private List<PostLike> postLikeList;
 
     
-    public void update(PostRequestDto postRequestDto, String imageUrl){
+    public void update(PostRequestDto postRequestDto, String imageUrl, Member member){
         this.title = postRequestDto.getTitle();
         this.content = postRequestDto.getContent();
         this.imageUrl = imageUrl;
+        this.member = member;
     }
 
 }

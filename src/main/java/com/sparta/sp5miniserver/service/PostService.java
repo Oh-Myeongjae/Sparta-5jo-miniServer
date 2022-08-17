@@ -8,13 +8,19 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
+import com.sparta.sp5miniserver.entity.Member;
 import com.sparta.sp5miniserver.entity.Post;
+import com.sparta.sp5miniserver.entity.UserDetailsImpl;
 import com.sparta.sp5miniserver.entity.PostLike;
 import com.sparta.sp5miniserver.repository.PostLikeRepository;
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,8 +44,11 @@ public class PostService {
     @Value("${cloud.aws.s3.bucket}")  // 내 S3 버켓 이름!!
     private String bucketName;
 
-    @Transactional   // 메소드 인수에 HttpServletRequest request 추가해줘야함.
-    public ResponseDto<?> createPost(PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
+    @Transactional
+    public ResponseDto<?> createPost(PostRequestDto postRequestDto, UserDetailsImpl userDetails) throws IOException {
+
+        Member member = userDetails.getMember();
+        MultipartFile multipartFile = postRequestDto.getImage();
 
         String imageUrl = null;  // 입력 이미지가 없다면!!
         // 참고 사이트 : https://www.sunny-son.space/spring/Springboot%EB%A1%9C%20S3%20%ED%8C%8C%EC%9D%BC%20%EC%97%85%EB%A1%9C%EB%93%9C/
@@ -57,6 +66,7 @@ public class PostService {
 
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
+                .member(member)
                 .content(postRequestDto.getContent())
                 .imageUrl(imageUrl)
                 .build();
@@ -78,9 +88,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<?> getAllPost() {
+    public ResponseDto<?> getAllPost(int page, int size, String sortBy) {
 
-        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
+        Sort.Direction direction = Sort.Direction.DESC; // true: 오름차순 (asc) , 내림차순 DESC(최신 것이 위로온다)
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size,sort);
+        Page<Post> postList = postRepository.findAll(pageable);
+
+//        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostResponseDto> dtoList = new ArrayList<>();
 
         for(Post post : postList){
@@ -130,8 +145,11 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile multipartFile) throws IOException {
+    public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, UserDetailsImpl userDetails) throws IOException {
+
+        Member member = userDetails.getMember();
         String imageUrl = null;  // 이미지 없을시..
+        MultipartFile multipartFile = postRequestDto.getImage();
 
         Optional<Post> optionalPost =  postRepository.findById(postId);
 
@@ -158,7 +176,7 @@ public class PostService {
         }
 
 
-        post.update(postRequestDto,imageUrl); // 업데이트!
+        post.update(postRequestDto,imageUrl,member); // 업데이트!
 
 
 
@@ -176,7 +194,9 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseDto<?> deletePost(Long postId) {
+    public ResponseDto<?> deletePost(Long postId, UserDetailsImpl userDetails) {
+        Member member = userDetails.getMember();
+
         Optional<Post> optionalPost =  postRepository.findById(postId);
 
         if(optionalPost.isEmpty()){
@@ -205,7 +225,7 @@ public class PostService {
         return optionalPost.orElse(null);
     }
 
-    @Transactional // S3 이미지 삭제
+  // S3 이미지 삭제
     public void fileDelete(String fileName) {
 
         try {
