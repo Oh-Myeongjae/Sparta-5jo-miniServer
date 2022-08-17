@@ -34,9 +34,8 @@ public class Member extends Timestamped {
         return passwordEncoder.matches(password, this.password);
     }
 
-//   // 임시로 POST 연관관계 삭제
-//       @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//       private List<Post> postList;
+       @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+       private List<Post> postList;
 
 //    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Comment> commentList;
