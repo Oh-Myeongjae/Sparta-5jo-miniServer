@@ -27,11 +27,11 @@ public class PostController {
 
     @GetMapping("/posts") // 게시판 전체 조회
     public ResponseDto<?> getAllPosts(
-//            @RequestParam("page") int page,
+            @RequestParam("page") int page
 //            @RequestParam("size")int size,
 //            @RequestParam("sortBy")String sortBy   //테스트용
     ){
-        int page = 0;  //첫번째 페이지 클라이언트에서는 1 , 서버 0
+        page = page -1;  //첫번째 페이지 클라이언트에서는 1 , 서버 0
         int size = 12; //  한 페이지 당 12개
         String sortBy = "createdAt";  // 정렬항목인데 필요없을듯...
 
