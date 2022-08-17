@@ -1,6 +1,5 @@
 package com.sparta.sp5miniserver.dto.response;
 
-import com.sparta.sp5miniserver.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +19,7 @@ public class PostResponseDto {
     private String imageUrl;
     private LocalDateTime createAt;
     private LocalDateTime modifiedAt;
-    private List<Comment> commentList;
+    private List<CommentListDto> commentList;
+    private int likesCount;  //받은 좋아요의 개수
+
 }

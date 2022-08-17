@@ -5,13 +5,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponseDto {
-    private long id;
+public class CommentListDto {
+    private Long id;
+    private String author;
     private String content;
-    private int memberId;
-    private Long postId;
+    private LocalDateTime createAt;
+    private LocalDateTime modifiedAt;
 }

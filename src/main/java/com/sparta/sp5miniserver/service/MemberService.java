@@ -15,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import javax.validation.constraints.Null;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -26,13 +26,15 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
-
     private  final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public Member signUp(SignUpRequest request){
+    public String signUp(SignUpRequest request){
         //유효성 검사
-        request.validate();
+        String checkValidation= request.validate();
+        if(!checkValidation.equals("정상")){
+            return checkValidation;
+        }
 
         //중복된 id가 있는지 레포지토리를 검사
         //System.out.println("request.getMemberId() ================= "+ request.getMemberId());
@@ -44,9 +46,9 @@ public class MemberService {
         member.setMemberId(request.getMemberId());
         member.setNickname(request.getNickname());
         member.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        memberRepository.save(member);
         //db에 저장하고 반환
-        return memberRepository.save(member);
+        return "회원가입 성공!";
     }
 
     @Transactional

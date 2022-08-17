@@ -21,20 +21,24 @@ public class SignUpRequest {
     private String password;
 
     //validate 함수를 만든다
-    public void validate() {
+    public String validate() {
 
-        String pattern = "^[가-힣\\da-zA-Z]*${2,10}";
-        String patternPassword = "(?=.*\\d).{2,16}";
+        String pattern = "^[A-Za-z0-9]{5,12}$"; /// 유효성검사.
+        //이전 ^[가-힣\da-zA-Z]*${5,12}
+        //이후 ^[A-Za-z0-9]{5,12}$
+        String patternPassword = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,20}$";
         //(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$)
+        // ^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,20}$
 
         if(!Pattern.matches(pattern, memberId)){
-            throw new IllegalArgumentException("아이디는 2~10자리의 영문 대소문자여야 합니다");
+            return "아이디는 6자리 이상의 영문 대소문자여야 합니다";
         }
         if(!Pattern.matches(pattern, nickname)){
-            throw new IllegalArgumentException("닉네임은 특수문자를 제외한 2~10자리여야 합니다");
+            return "닉네임은 특수문자를 제외한 2~10자리여야 합니다";
         }
         if(!Pattern.matches(patternPassword, password)){
-            throw new IllegalArgumentException("비밀번호는 2~16자의 숫자");
+            return "비밀번호는 2~16자의 숫자 및 특수문자를 포함해야함..";
         }
+        return "정상";
     }
 }
