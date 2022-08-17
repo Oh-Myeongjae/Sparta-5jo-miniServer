@@ -7,16 +7,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
 import com.sparta.sp5miniserver.dto.response.CommentListDto;
+import com.sparta.sp5miniserver.dto.response.PageDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
-import com.sparta.sp5miniserver.entity.Comment;
+import com.sparta.sp5miniserver.entity.*;
 import com.sparta.sp5miniserver.repository.CommentRepository;
-import com.sparta.sp5miniserver.entity.Member;
-import com.sparta.sp5miniserver.entity.Post;
-import com.sparta.sp5miniserver.entity.UserDetailsImpl;
-import com.sparta.sp5miniserver.entity.PostLike;
 import com.sparta.sp5miniserver.repository.PostLikeRepository;
-
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +31,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -121,8 +115,15 @@ public class PostService {
                     .likesCount(countLikesPost(post))
                     .build());
         }
-
-        return ResponseDto.success(dtoList);
+        PageDto pageDto = PageDto.builder()
+                .TotalElement(postList.getTotalElements())
+                .TotalPages(postList.getTotalPages())
+                .NowPage(postList.getNumber()+1)
+                .NowContent(postList.getNumberOfElements())
+                .Size(postList.getSize())
+                .content(dtoList)
+                .build();
+        return ResponseDto.success(pageDto);
 
     }
 
