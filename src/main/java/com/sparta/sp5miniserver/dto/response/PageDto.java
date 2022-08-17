@@ -16,7 +16,6 @@ public class PageDto {
        private int TotalPages;
        private int NowPage;
        private int NowContent;
-       private int Size;
        private List<PostResponseDto>  content;
 
 }

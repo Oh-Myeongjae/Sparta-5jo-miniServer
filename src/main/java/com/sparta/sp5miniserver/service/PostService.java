@@ -120,7 +120,6 @@ public class PostService {
                 .TotalPages(postList.getTotalPages())
                 .NowPage(postList.getNumber()+1)
                 .NowContent(postList.getNumberOfElements())
-                .Size(postList.getSize())
                 .content(dtoList)
                 .build();
         return ResponseDto.success(pageDto);
