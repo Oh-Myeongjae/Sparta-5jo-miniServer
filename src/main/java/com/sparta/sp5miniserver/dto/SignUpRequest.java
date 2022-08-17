@@ -33,9 +33,9 @@ public class SignUpRequest {
         if(!Pattern.matches(pattern, memberId)){
             return "아이디는 6자리 이상의 영문 대소문자여야 합니다";
         }
-        if(!Pattern.matches(pattern, nickname)){
-            return "닉네임은 특수문자를 제외한 2~10자리여야 합니다";
-        }
+//        if(!Pattern.matches(pattern, nickname)){
+//            return "닉네임은 특수문자를 제외한 2~10자리여야 합니다";
+//        }
         if(!Pattern.matches(patternPassword, password)){
             return "비밀번호는 2~16자의 숫자 및 특수문자를 포함해야함..";
         }
