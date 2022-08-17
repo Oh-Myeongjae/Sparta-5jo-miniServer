@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -69,8 +70,10 @@ public class MemberService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
         tokenToHeaders(tokenDto, response);
-
-        ResponseDto responseDto = ResponseDto.success("sucess");
+        HashMap<String,String> data = new HashMap<String,String>();
+        data.put("Authorization","Bearer "+tokenDto.getAccessToken());
+        data.put("Refresh-Token",tokenDto.getRefreshToken());
+        ResponseDto responseDto = ResponseDto.success(data);
         return responseDto;
     }
 
