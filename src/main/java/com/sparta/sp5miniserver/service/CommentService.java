@@ -12,6 +12,8 @@ import com.sparta.sp5miniserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -39,7 +41,7 @@ public class CommentService {
                 .build();
         return ResponseDto.success(commentResponseDto);
     }
-
+ @Transactional
     public ResponseDto<?> updateComment(Long commentId, CommentRequestDto commentRequestDto, String user) {
 
         Member member = memberRepository.findByMemberId(user).orElse(null);
