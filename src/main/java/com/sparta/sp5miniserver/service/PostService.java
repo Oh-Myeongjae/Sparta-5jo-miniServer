@@ -7,16 +7,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
 import com.sparta.sp5miniserver.dto.response.CommentListDto;
+import com.sparta.sp5miniserver.dto.response.PageDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
-import com.sparta.sp5miniserver.entity.Comment;
+import com.sparta.sp5miniserver.entity.*;
 import com.sparta.sp5miniserver.repository.CommentRepository;
-import com.sparta.sp5miniserver.entity.Member;
-import com.sparta.sp5miniserver.entity.Post;
-import com.sparta.sp5miniserver.entity.UserDetailsImpl;
-import com.sparta.sp5miniserver.entity.PostLike;
 import com.sparta.sp5miniserver.repository.PostLikeRepository;
-
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +31,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -56,7 +50,7 @@ public class PostService {
         Member member = userDetails.getMember();
         MultipartFile multipartFile = postRequestDto.getImage();
 
-        String imageUrl = null;  // 입력 이미지가 없다면!!
+        String imageUrl;  // 입력 이미지가 없다면!!
         // 참고 사이트 : https://www.sunny-son.space/spring/Springboot%EB%A1%9C%20S3%20%ED%8C%8C%EC%9D%BC%20%EC%97%85%EB%A1%9C%EB%93%9C/
         if (!multipartFile.isEmpty()) { // 이미지가 있다면!!
         String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename()); // 파일이름
@@ -68,7 +62,13 @@ public class PostService {
 
         imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
 
+        }else{
+            String fileName = "animalDefault.png";
+            imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
         }
+
+
+
 
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
@@ -112,10 +112,17 @@ public class PostService {
                     .imageUrl(post.getImageUrl())
                     .createAt(post.getCreatedAt())
                     .modifiedAt(post.getModifiedAt())
+                    .likesCount(countLikesPost(post))
                     .build());
         }
-
-        return ResponseDto.success(dtoList);
+        PageDto pageDto = PageDto.builder()
+                .TotalElement(postList.getTotalElements())
+                .TotalPages(postList.getTotalPages())
+                .NowPage(postList.getNumber()+1)
+                .NowContent(postList.getNumberOfElements())
+                .content(dtoList)
+                .build();
+        return ResponseDto.success(pageDto);
 
     }
 
@@ -172,24 +179,42 @@ public class PostService {
             return ResponseDto.fail("에러코드~~","존재하지 않는 게시글");
         }
         Post post = optionalPost.get();
-        String urlFileName = post.getImageUrl().substring(56);
-        fileDelete(urlFileName); // S3에 업로드된 이미지 삭제!
 
 
-        if (!multipartFile.isEmpty()) {
-            String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
+        if(post.getImageUrl().equals("https://spartabucketson.s3.ap-northeast-2.amazonaws.com/animalDefault.png")){
+            // 이전 게시글에 이미지가 없는 경우!!
 
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentType(multipartFile.getContentType());
-
-            InputStream inputStream = multipartFile.getInputStream();
-
-            amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-
-            imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString();
+            if (!multipartFile.isEmpty()) {  // 수정게시글에 이미지를 넣는경우
+                String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(multipartFile.getContentType());
+                InputStream inputStream = multipartFile.getInputStream();
+                amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
+                imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString();
+            } else {          // 수정 게시글에 이미지를 안넣는 경우
+                String fileName = "animalDefault.png";
+                imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
+            }
         }
+        else { //이전 게시글에 이미지가 있는 경우!!
+            String urlFileName = post.getImageUrl().substring(56);
+            fileDelete(urlFileName); // S3에 업로드된 이미지 삭제!
 
+            if (!multipartFile.isEmpty()) {  // 수정게시글에 이미지를 넣는경우
+                String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(multipartFile.getContentType());
+                InputStream inputStream = multipartFile.getInputStream();
+                amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
+                imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString();
+            } else {    // 수정 게시글에 이미지를 안넣는 경우
+                String fileName = "animalDefault.png";
+                imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
+            }
+
+        }
 
         post.update(postRequestDto,imageUrl,member); // 업데이트!
 
@@ -230,14 +255,13 @@ public class PostService {
         }
         Post post = optionalPost.get();
 
+        if(!post.getImageUrl().equals("https://spartabucketson.s3.ap-northeast-2.amazonaws.com/animalDefault.png")){
+            String urlFileName = post.getImageUrl().substring(56); // 기본 이미지가 아닌 경우 삭제
+            fileDelete(urlFileName);
+        }
 
-        // aws 연동된 이미지도 삭제!
+            postRepository.delete(post);
 
-        String urlFileName = post.getImageUrl().substring(56);
-        fileDelete(urlFileName);
-
-        // 포스트 삭제
-        postRepository.delete(post);
 
         return ResponseDto.success("게시글 삭제 성공!");
     }
