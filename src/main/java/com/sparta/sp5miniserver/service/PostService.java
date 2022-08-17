@@ -16,6 +16,7 @@ import com.sparta.sp5miniserver.repository.PostLikeRepository;
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,11 +59,11 @@ public class PostService {
         String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename()); // 파일이름
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());  // 이게 머지? : 파일타입
-        InputStream inputStream = multipartFile.getInputStream();   // 이게 머지??? :
+        InputStream inputStream = multipartFile.getInputStream();   // 이게 머지??? : 실제 데이터를 넣어준다~
         amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead));  // S3 저장 및 권한설정
 
-        imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!
+        imageUrl = amazonS3Client.getUrl(bucketName, fileName).toString(); // URL 대입!, URL 변환시 한글깨짐
 
         }else{
             String fileName = "animalDefault.png";
@@ -199,7 +202,9 @@ public class PostService {
         }
         else { //이전 게시글에 이미지가 있는 경우!!
             String urlFileName = post.getImageUrl().substring(56);
+            urlFileName = URLDecoder.decode(urlFileName,"UTF-8"); // 한글 파일 이름 디코딩!!
             fileDelete(urlFileName); // S3에 업로드된 이미지 삭제!
+
 
             if (!multipartFile.isEmpty()) {  // 수정게시글에 이미지를 넣는경우
                 String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
@@ -245,7 +250,7 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseDto<?> deletePost(Long postId, UserDetailsImpl userDetails) {
+    public ResponseDto<?> deletePost(Long postId, UserDetailsImpl userDetails) throws UnsupportedEncodingException {
         Member member = userDetails.getMember();
 
         Optional<Post> optionalPost =  postRepository.findById(postId);
@@ -257,6 +262,7 @@ public class PostService {
 
         if(!post.getImageUrl().equals("https://spartabucketson.s3.ap-northeast-2.amazonaws.com/animalDefault.png")){
             String urlFileName = post.getImageUrl().substring(56); // 기본 이미지가 아닌 경우 삭제
+            urlFileName = URLDecoder.decode(urlFileName,"UTF-8"); // 한글 파일 이름 디코딩!!
             fileDelete(urlFileName);
         }
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 @RequiredArgsConstructor // 생성자 주입
 @RestController
@@ -51,7 +52,7 @@ public class PostController {
     }
 
     @DeleteMapping("/post/{postId}")
-    public ResponseDto<?> deletePost(@PathVariable Long postId,  @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseDto<?> deletePost(@PathVariable Long postId,  @AuthenticationPrincipal UserDetailsImpl userDetails) throws UnsupportedEncodingException {
         return postService.deletePost(postId,userDetails);
     }
 
