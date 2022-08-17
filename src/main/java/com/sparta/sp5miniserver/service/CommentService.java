@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -42,7 +44,7 @@ public class CommentService {
                 .build();
         return ResponseDto.success(commentResponseDto);
     }
-
+ @Transactional
     public ResponseDto<?> updateComment(Long commentId, CommentRequestDto commentRequestDto, String user) {
 
         Member member = memberRepository.findByMemberId(user).orElse(null);

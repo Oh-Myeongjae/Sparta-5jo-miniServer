@@ -6,13 +6,17 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.sp5miniserver.dto.request.PostRequestDto;
+import com.sparta.sp5miniserver.dto.response.CommentListDto;
 import com.sparta.sp5miniserver.dto.response.PostResponseDto;
 import com.sparta.sp5miniserver.dto.response.ResponseDto;
+import com.sparta.sp5miniserver.entity.Comment;
+import com.sparta.sp5miniserver.repository.CommentRepository;
 import com.sparta.sp5miniserver.entity.Member;
 import com.sparta.sp5miniserver.entity.Post;
 import com.sparta.sp5miniserver.entity.UserDetailsImpl;
 import com.sparta.sp5miniserver.entity.PostLike;
 import com.sparta.sp5miniserver.repository.PostLikeRepository;
+
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +43,9 @@ public class PostService {
 
     private final AmazonS3Client amazonS3Client;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
+
 
     @Value("${cloud.aws.s3.bucket}")  // 내 S3 버켓 이름!!
     private String bucketName;
@@ -125,23 +131,32 @@ public class PostService {
         }
 
         Post post = OptionalPost.get();
-//        List<Comment> commentList = commentRepository.findAllByPost(post);  // 댓글은 아직 기능 구현 안햇음!
-//        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+        List<Comment> commentList = commentRepository.findAllByPost(post);  // 댓글은 아직 기능 구현 안햇음!
+        List<CommentListDto> commentResponseDtoList = new ArrayList<>();
+        for(Comment comment  : commentList){
+            commentResponseDtoList.add(
+                    CommentListDto.builder()
+                    .id(comment.getId())
+                    .content(comment.getContent())
+                    .author(comment.getMember().getNickname())
+                    .createAt(comment.getCreatedAt())
+                    .modifiedAt(comment.getModifiedAt())
+                    .build()
+            );
+        }
 
 
-        return ResponseDto.success(
-          PostResponseDto.builder()
-                  .id(post.getId())
-                  .title(post.getTitle())
-                  .content(post.getContent())
-                  .imageUrl(post.getImageUrl())
-                  .createAt(post.getCreatedAt())
-                  .modifiedAt(post.getModifiedAt())
-                  .commentList(post.getCommentList())
-                  .likesCount(countLikesPost(post))//좋아요 개수
-                  .build()
-        );
-
+        PostResponseDto postResponseDto = PostResponseDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+                .createAt(post.getCreatedAt())
+                .modifiedAt(post.getModifiedAt())
+                .commentList(commentResponseDtoList)
+                .likesCount(countLikesPost(post))//좋아요 개수
+                .build();
+        return ResponseDto.success(postResponseDto);
     }
 
     @Transactional
@@ -178,7 +193,18 @@ public class PostService {
 
         post.update(postRequestDto,imageUrl,member); // 업데이트!
 
-
+        List<CommentListDto> commentResponseDtoList = new ArrayList<>();
+        for(Comment comment  : post.getCommentList()){
+            commentResponseDtoList.add(
+                    CommentListDto.builder()
+                            .id(comment.getId())
+                            .content(comment.getContent())
+                            .author(comment.getMember().getNickname())
+                            .createAt(comment.getCreatedAt())
+                            .modifiedAt(comment.getModifiedAt())
+                            .build()
+            );
+        }
 
         return ResponseDto.success(
                 PostResponseDto.builder()
@@ -188,7 +214,7 @@ public class PostService {
                         .imageUrl(post.getImageUrl())
                         .createAt(post.getCreatedAt())
                         .modifiedAt(post.getModifiedAt())
-                        .commentList(post.getCommentList())
+                        .commentList(commentResponseDtoList)
                         .build()
         );
     }
