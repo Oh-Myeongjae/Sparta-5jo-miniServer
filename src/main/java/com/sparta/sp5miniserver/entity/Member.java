@@ -20,7 +20,7 @@ public class Member extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varbinary(128)")
     private String memberId;
 
     @Column(nullable = false)
