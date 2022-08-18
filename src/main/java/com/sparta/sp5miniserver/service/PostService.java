@@ -15,6 +15,7 @@ import com.sparta.sp5miniserver.repository.CommentRepository;
 import com.sparta.sp5miniserver.repository.PostLikeRepository;
 import com.sparta.sp5miniserver.repository.PostRepository;
 import com.sparta.sp5miniserver.utils.CommonUtils;
+import com.sparta.sp5miniserver.utils.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +44,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
+    private final TokenProvider tokenProvider;
 
 
     @Value("${cloud.aws.s3.bucket}")  // 내 S3 버켓 이름!!
@@ -173,6 +176,7 @@ public class PostService {
     public ResponseDto<?> updatePost(Long postId, PostRequestDto postRequestDto, UserDetailsImpl userDetails) throws IOException {
 
         Member member = userDetails.getMember();
+
         String imageUrl = null;  // 이미지 없을시..
         MultipartFile multipartFile = postRequestDto.getImage();
 
@@ -181,8 +185,12 @@ public class PostService {
         if(optionalPost.isEmpty()){
             return ResponseDto.fail("에러코드~~","존재하지 않는 게시글");
         }
+
         Post post = optionalPost.get();
 
+        if(post.getMember().getId()!= member.getId()){
+            return ResponseDto.fail("에러코드~~","작성한사용자만 작업가능합니다");
+        }
 
         if(post.getImageUrl().equals("https://spartabucketson.s3.ap-northeast-2.amazonaws.com/animalDefault.png")){
             // 이전 게시글에 이미지가 없는 경우!!
@@ -260,6 +268,10 @@ public class PostService {
         }
         Post post = optionalPost.get();
 
+        if(post.getMember().getId()!= member.getId()){
+            return ResponseDto.fail("에러코드~~","작성한사용자만 작업가능합니다");
+        }
+
         if(!post.getImageUrl().equals("https://spartabucketson.s3.ap-northeast-2.amazonaws.com/animalDefault.png")){
             String urlFileName = post.getImageUrl().substring(56); // 기본 이미지가 아닌 경우 삭제
             urlFileName = URLDecoder.decode(urlFileName,"UTF-8"); // 한글 파일 이름 디코딩!!
@@ -297,4 +309,6 @@ public class PostService {
         List<PostLike> postLikeList = postLikeRepository.findAllByPost(post);
         return postLikeList.size();
     }
+
+
 }
